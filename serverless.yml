@@ -31,7 +31,7 @@ functions:
     handler: todos/list.list
     events:
       - http:
-          path: contact/{email}
+          path: list/{email}
           method: get
           cors: true
 
