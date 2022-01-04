@@ -31,7 +31,7 @@ functions:
     handler: todos/list.list
     events:
       - http:
-          path: list/{id}
+          path: search/{id}
           method: get
           cors: true
 
