@@ -3,16 +3,29 @@
 const AWS = require('aws-sdk');
 const dynamoDb = new AWS.DynamoDB.DocumentClient({region: 'us-east-2'});
 
-exports.handler = async (event) => {
     var scanParams = {
         TableName: 'contact'
     };
     
-    const data = await dynamoDb.scan(scanParams).promise();
-    const res = {
-        statusCode: 200,
-        body: data
-    }
+    module.exports.list = (event, context, callback) => {
+
+      dynamoDb.scan(scanParams, (error, result) => {
+        
+        if (error) {
+          console.error(error);
+          callback(null, {
+            statusCode: error.statusCode || 501,
+            headers: { 'Content-Type': 'text/plain' },
+            body: 'Couldn\'t fetch the contact.',
+          });
+          return;
+        }
     
-    return res;
-}
+        // create a response
+        const response = {
+          statusCode: 200,
+          body: JSON.stringify(result),
+        };
+        callback(null, response);
+      });
+    };
