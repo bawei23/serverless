@@ -8,13 +8,12 @@ module.exports.delete = (event, context, callback) => {
   const params = {
     TableName: process.env.DYNAMODB_TABLE,
     Key: {
-      id: event.pathParameters.id,
+      contactID: event.pathParameters.contactID,
     },
   };
 
-  // delete the todo from the database
   dynamoDb.delete(params, (error) => {
-    // handle potential errors
+    
     if (error) {
       console.error(error);
       callback(null, {
