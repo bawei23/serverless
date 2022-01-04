@@ -1,13 +1,67 @@
-service: basic-serverless-lambda
+service: s3-file-api
 
 provider:
   name: aws
   runtime: nodejs12.x
   stage: dev
   region: us-east-2
-  
+  apiName: ${self:service}
+  memorySize: 128 # mb
+  timeout: 10 # seconds
+  environment:
+    FILE_UPLOAD_BUCKET_NAME: ${self:custom.fileBucketName}
+
+plugins:
+  - serverless-iam-roles-per-function
+
+custom:
+  fileBucketName: s3-file-bucket-${self:provider.stage}
+
 functions:
-  hello:
-    handler: src/handler.generateRandomNumber
-    timeout: 60 # seconds
-    memorySize: 128 # mb
+  s3FileUploader:
+    handler: src/upload.handler
+    name: s3-file-uploader
+    description: A lambda handler that uploads a file to an S3 bucket based on an API Gateway trigger.
+    events:
+      - http:
+          path: file
+          method: POST
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - "s3:Put*"
+        Resource: arn:aws:s3:::${self:custom.fileBucketName}/*
+  s3FileGet:
+    handler: src/get.handler
+    name: s3-file-get
+    description: A lambda handler that retrieves a file from an S3 bucket based on an API Gateway trigger.
+    events:
+      - http:
+          path: file/{fileKey}
+          method: GET
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - "s3:Get*"
+        Resource: arn:aws:s3:::${self:custom.fileBucketName}/*
+  s3FileDelete:
+    handler: src/delete.handler
+    name: s3-file-delete
+    description: A lambda handler that deletes a file from an S3 bucket based on an API Gateway trigger.
+    events:
+      - http:
+          path: file/{fileKey}
+          method: DELETE
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - "s3:DeleteObject"
+        Resource: arn:aws:s3:::${self:custom.fileBucketName}/*
+
+resources:
+  Resources:
+    FileBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.fileBucketName}
+        AccessControl: Private
