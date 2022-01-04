@@ -37,7 +37,7 @@ functions:
           cors: true
 
   get:
-    handler: todos/get.get
+    handler: todos/get
     events:
       - http:
           path: contact/
