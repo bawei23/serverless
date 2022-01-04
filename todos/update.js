@@ -1,8 +1,7 @@
 'use strict';
 
-const AWS = require('aws-sdk'); // eslint-disable-line import/no-extraneous-dependencies
-
-const dynamoDb = new AWS.DynamoDB.DocumentClient();
+const AWS = require('aws-sdk'); 
+const dynamoDb = new AWS.DynamoDB.DocumentClient({region: 'us-east-2'});
 
 module.exports.update = (event, context, callback) => {
   const timestamp = new Date().getTime();
