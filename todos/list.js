@@ -8,7 +8,7 @@ module.exports.list = (event, context, callback) => {
   const params = {
     TableName: "contact",
     Key: {
-      email: event.pathParameters.email,
+      contactID: event.pathParameters.id,
     },
   };
  
