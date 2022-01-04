@@ -7,7 +7,7 @@ const dynamoDb = new AWS.DynamoDB.DocumentClient({region: 'us-east-2'});
         TableName: 'contact'
     };
     
-    module.exports.list = (event, context, callback) => {
+    module.exports.get = (event, context, callback) => {
 
       dynamoDb.scan(scanParams, (error, result) => {
         
