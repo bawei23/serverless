@@ -3,6 +3,7 @@ service: serverless-rest-api-with-dynamodb
 provider:
   name: aws
   runtime: nodejs14.x
+  region: us-east-2
   environment:
     DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
   iam:
