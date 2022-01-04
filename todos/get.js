@@ -21,7 +21,7 @@ module.exports.get = (event, context, callback) => {
           return callback(null, {
               statusCode: 200,
               body: JSON.stringify({
-                  candidates: data.Items
+                  contact: data.Items
               })
           });
       }
