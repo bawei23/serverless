@@ -10,6 +10,7 @@ const dynamoDb = new AWS.DynamoDB.DocumentClient({region: 'us-east-2'});
 module.exports.create = (event, context, callback) => {
   const timestamp = new Date().getTime();
   const randomNumber = parseInt(Math.random() * 100);
+  console.log(event);
   const data = JSON.parse(event.body);
   if (typeof data.fullname !== 'string') {
     console.error('Validation Failed');
