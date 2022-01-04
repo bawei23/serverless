@@ -24,7 +24,7 @@ functions:
     handler: todos/create.create
     events:
       - http:
-          path: todos
+          path: contact
           method: post
           cors: true
 
@@ -48,7 +48,7 @@ functions:
     handler: todos/update.update
     events:
       - http:
-          path: todos/{id}
+          path: contact/{id}
           method: put
           cors: true
 
@@ -56,7 +56,7 @@ functions:
     handler: todos/delete.delete
     events:
       - http:
-          path: todos/{id}
+          path: contact/{id}
           method: delete
           cors: true
 
