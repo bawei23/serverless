@@ -6,7 +6,7 @@ const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 module.exports.delete = (event, context, callback) => {
   const params = {
-    TableName: process.env.DYNAMODB_TABLE,
+    TableName: "contact",
     Key: {
       contactID: event.pathParameters.contactID,
     },
@@ -19,7 +19,7 @@ module.exports.delete = (event, context, callback) => {
       callback(null, {
         statusCode: error.statusCode || 501,
         headers: { 'Content-Type': 'text/plain' },
-        body: 'Couldn\'t remove the todo item.',
+        body: 'Couldn\'t remove the contact.',
       });
       return;
     }
