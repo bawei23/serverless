@@ -1,4 +1,4 @@
-service: s3-file-api
+service: s3-crud-api
 
 provider:
   name: aws
@@ -15,7 +15,7 @@ plugins:
   - serverless-iam-roles-per-function
 
 custom:
-  fileBucketName: s3-file-bucket-${self:provider.stage}
+  fileBucketName: serverless-${self:provider.stage}
 
 functions:
   s3FileUploader:
