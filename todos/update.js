@@ -22,7 +22,7 @@ module.exports.update = (event, context, callback) => {
   const params = {
     TableName: "contact",
     Key: {
-      id: event.pathParameters.id,
+      contactID: event.pathParameters.id,
     },
     ExpressionAttributeNames: {
       '#todo_text': 'fullname',
@@ -32,7 +32,7 @@ module.exports.update = (event, context, callback) => {
       ':checked': data.checked,
       ':updatedAt': timestamp,
     },
-    UpdateExpression: 'SET #todo_text = :text, checked = :checked, updatedAt = :updatedAt',
+    UpdateExpression: 'SET #todo_text = :fullname, checked = :checked, updatedAt = :updatedAt',
     ReturnValues: 'ALL_NEW',
   };
 
