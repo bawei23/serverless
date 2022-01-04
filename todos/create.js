@@ -3,7 +3,7 @@
 const uuid = require('uuid');
 const AWS = require('aws-sdk');
 	
-AWS.config.setPromisesDependency(require('bluebird'));
+
 const dynamoDb = new AWS.DynamoDB.DocumentClient({region: 'us-east-2'});
 
 	
