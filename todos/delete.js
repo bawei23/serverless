@@ -8,7 +8,7 @@ module.exports.delete = (event, context, callback) => {
   const params = {
     TableName: "contact",
     Key: {
-      contactID: event.pathParameters.contactID,
+      contactID: event.pathParameters.id,
     },
   };
 
