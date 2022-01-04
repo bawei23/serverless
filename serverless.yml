@@ -1,67 +1,81 @@
-service: s3-crud-api
+service: serverless-rest-api-with-dynamodb
+
+frameworkVersion: ">=1.1.0 <2.0.0"
 
 provider:
   name: aws
   runtime: nodejs14.x
-  stage: dev
-  region: us-east-2
-  apiName: ${self:service}
-  memorySize: 128 # mb
-  timeout: 10 # seconds
   environment:
-    FILE_UPLOAD_BUCKET_NAME: ${self:custom.fileBucketName}
-
-plugins:
-  - serverless-iam-roles-per-function
-
-custom:
-  fileBucketName: serverlesscrud-${self:provider.stage}
+    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
 
 functions:
-  s3FileUploader:
-    handler: src/upload.handler
-    name: s3-crud-uploader
-    description: A lambda handler that uploads a file to an S3 bucket based on an API Gateway trigger.
+  create:
+    handler: todos/create.create
     events:
       - http:
-          path: file
-          method: POST
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - "s3:Put*"
-        Resource: arn:aws:s3:::${self:custom.fileBucketName}/*
-  s3FileGet:
-    handler: src/get.handler
-    name: s3-crud-get
-    description: A lambda handler that retrieves a file from an S3 bucket based on an API Gateway trigger.
+          path: todos
+          method: post
+          cors: true
+
+  list:
+    handler: todos/list.list
     events:
       - http:
-          path: file/{fileKey}
-          method: GET
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - "s3:Get*"
-        Resource: arn:aws:s3:::${self:custom.fileBucketName}/*
-  s3FileDelete:
-    handler: src/delete.handler
-    name: s3-crud-delete
-    description: A lambda handler that deletes a file from an S3 bucket based on an API Gateway trigger.
+          path: todos
+          method: get
+          cors: true
+
+  get:
+    handler: todos/get.get
     events:
       - http:
-          path: file/{fileKey}
-          method: DELETE
-    iamRoleStatements:
-      - Effect: Allow
-        Action:
-          - "s3:DeleteObject"
-        Resource: arn:aws:s3:::${self:custom.fileBucketName}/*
+          path: todos/{id}
+          method: get
+          cors: true
+
+  update:
+    handler: todos/update.update
+    events:
+      - http:
+          path: todos/{id}
+          method: put
+          cors: true
+
+  delete:
+    handler: todos/delete.delete
+    events:
+      - http:
+          path: todos/{id}
+          method: delete
+          cors: true
 
 resources:
   Resources:
-    FileBucket:
-      Type: AWS::S3::Bucket
+    TodosDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
       Properties:
-        BucketName: ${self:custom.fileBucketName}
-        AccessControl: Private
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
