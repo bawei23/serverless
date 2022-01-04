@@ -2,7 +2,7 @@
 
 const AWS = require('aws-sdk'); 
 
-const dynamoDb = new AWS.DynamoDB.DocumentClient();
+const dynamoDb = new AWS.DynamoDB.DocumentClient({region: 'us-east-2'});
 const params = {
   TableName: process.env.DYNAMODB_TABLE,
 };
