@@ -4,7 +4,7 @@ const AWS = require('aws-sdk');
 const dynamoDb = new AWS.DynamoDB.DocumentClient({region: 'us-east-2'});
 
     var scanParams = {
-        TableName: 'contact'
+      TableName: process.env.DYNAMODB_TABLE,
     };
     
     module.exports.get = (event, context, callback) => {

@@ -24,7 +24,7 @@ module.exports.list = (event, context, callback) => {
     // create a response
     const response = {
       statusCode: 200,
-      body: JSON.stringify(result.Items),
+      body: JSON.stringify(result),
     };
     callback(null, response);
   });
