@@ -2,52 +2,63 @@
 
 const uuid = require('uuid');
 const AWS = require('aws-sdk');
+	
+AWS.config.setPromisesDependency(require('bluebird'));
+const dynamoDb = new AWS.DynamoDB.DocumentClient({region: 'us-east-2'});
 
-const dynamoDb = new AWS.DynamoDB.DocumentClient();
-
+	
 module.exports.create = (event, context, callback) => {
-  const timestamp = new Date().getTime();
-  const data = JSON.parse(event.body);
-  if (typeof data.text !== 'string') {
+  const requestBody = JSON.parse(event.body);
+  const fullname = requestBody.fullname;
+  const email = requestBody.email;
+  const phone_number = requestBody.phone_number;
+ 
+  if (typeof fullname !== 'string' || typeof email !== 'string' || typeof phone_number !== 'number') {
     console.error('Validation Failed');
-    callback(null, {
-      statusCode: 400,
-      headers: { 'Content-Type': 'text/plain' },
-      body: 'Couldn\'t create the todo item.',
-    });
+    callback(new Error('Couldn\'t submit contact because of validation errors.'));
     return;
   }
-
-  const params = {
-    TableName: process.env.DYNAMODB_TABLE,
-    Item: {
-      contactID: uuid.v1(),
-      name: data.name,
-      phone: data.phone,
-      email: data.email,
-      address: data.address,
-      checked: false,
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    },
-  };
-
-  dynamoDb.put(params, (error) => {
-
-    if (error) {
-      console.error(error);
+ 
+  submitContact(contactInfo(fullname, email, phone_number))
+    .then(res => {
       callback(null, {
-        statusCode: error.statusCode || 501,
-        headers: { 'Content-Type': 'text/plain' },
-        body: 'Couldn\'t create the todo item.',
+        statusCode: 200,
+        body: JSON.stringify({
+          message: `Sucessfully submitted contact with email ${email}`,
+          contactID: res.contactID
+        })
       });
-      return;
-    }
-
-    const response = {
-      statusCode: 200,
-      body: JSON.stringify(params.Item),
-    };
-    callback(null, response);
-  });
+    })
+    .catch(err => {
+      console.log(err);
+      callback(null, {
+        statusCode: 500,
+        body: JSON.stringify({
+          message: `Unable to submit contact with email ${email}`
+        })
+      })
+    });
+};
+ 
+ 
+const submitContact = contact => {
+  console.log('Submitting contact');
+  const contactInfo = {
+    TableName: "contact",
+    Item: contact,
+  };
+  return dynamoDb.put(contactInfo).promise()
+    .then(res => contact);
+};
+ 
+const contactInfo = (fullname, email, phone_number) => {
+  const timestamp = new Date().getTime();
+  return {
+    contactID: uuid.v1(),
+    fullname: fullname,
+    email: email,
+    phone_number: phone_number,
+    submittedAt: timestamp,
+    updatedAt: timestamp,
+  };
 };
